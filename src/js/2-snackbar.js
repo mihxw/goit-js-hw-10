@@ -1,50 +1,50 @@
 import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
 
-// Крок 2.1: Підготовка елементів
+// Отримання елементів з форми
 const form = document.querySelector('.form');
-const delayInput = form.querySelector('[name="delay"]');
-const stateRadioButtons = form.querySelectorAll('[name="state"]');
-const submitButton = form.querySelector('button');
+const delayInput = form.querySelector('input[name="delay"]');
+const stateRadios = form.querySelectorAll('input[name="state"]');
 
-// Крок 2.2: Обробник сабміту
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
+form.addEventListener('submit', function(event) {
+  event.preventDefault(); // Щоб не відправляти форму, а виконувати наш код
 
+  // Отримуємо значення затримки та вибраного стану
   const delay = Number(delayInput.value);
-  const state = [...stateRadioButtons].find(radio => radio.checked)?.value;
+  const state = Array.from(stateRadios).find(radio => radio.checked)?.value;
 
-  if (state && delay > 0) {
-    createPromise(delay, state);
+  // Перевірка на коректність значень
+  if (!delay || !state) {
+    iziToast.error({
+      title: 'Error',
+      message: 'Please provide a valid delay and select a state.',
+    });
+    return;
   }
-});
 
-// Крок 2.3: Функція для створення промісу
-function createPromise(delay, state) {
+  // Створення промісу
   const promise = new Promise((resolve, reject) => {
     setTimeout(() => {
-      if (state === "fulfilled") {
-        resolve(delay);
-      } else if (state === "rejected") {
-        reject(delay);
+      if (state === 'fulfilled') {
+        resolve(delay); // Виконується успішно через delay мілісекунд
+      } else {
+        reject(delay); // Відхиляється через delay мілісекунд
       }
     }, delay);
   });
 
-  // Крок 2.4: Обробка результатів промісу
+  // Обробка результату промісу
   promise
     .then(delay => {
       iziToast.success({
         title: 'Success',
         message: `✅ Fulfilled promise in ${delay}ms`,
       });
-      console.log(`✅ Fulfilled promise in ${delay}ms`);
     })
     .catch(delay => {
       iziToast.error({
         title: 'Error',
         message: `❌ Rejected promise in ${delay}ms`,
       });
-      console.log(`❌ Rejected promise in ${delay}ms`);
     });
-}
+});
